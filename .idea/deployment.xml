@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="root@194.36.179.15:22 password" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="root@194.36.179.15:22 Eskort">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
+        </serverdata>
+      </paths>
+      <paths name="root@194.36.179.15:22 password">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/BinaryFuck" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/venv" />
+          </excludedPaths>
         </serverdata>
       </paths>
       <paths name="root@194.36.179.15:22FundingFather">
@@ -17,5 +27,6 @@
         </serverdata>
       </paths>
     </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>
