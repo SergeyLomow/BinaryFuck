@@ -4,7 +4,6 @@ from mitmproxy import ctx
 from mitmproxy import http
 import MetaTrader5 as mt5
 from statistics import mean
-import pyautogui
 import datetime
 import models
 
