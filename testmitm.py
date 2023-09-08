@@ -26,7 +26,7 @@ async def main():
         print("failed to connect at account #{}, error code: {}".format(account, mt5.last_error()))
 
     symbol = "EURUSD"
-    point_limit = 0.00004
+    point_limit = 0.00007
 
     spread = models.spread(None, None, None, None, None, None, None, None, None)
 
@@ -56,7 +56,7 @@ async def main():
                     ctx.master.commands.call(
                         "inject.websocket", flow_trade, False, msg.encode()
                     )
-                    await asyncio.sleep(10)
+                    await asyncio.sleep(30)
                     logging.info("SENT!")
             spread.set_prev()
 
