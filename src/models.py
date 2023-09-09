@@ -13,7 +13,8 @@ class spread:
     change: float
 
     def print_info(self):
-        print(self.prev_time, "a:", round(self.prev_ask, 5), "b:", round(self.prev_bid, 5), "m:", round(self.prev_avg, 5), "==> {:.5f} ==>".format(self.change), self.time, "a:", round(self.ask, 5), "b:", round(self.bid, 5), "m:", round(self.avg, 5))
+        pass
+        #logging.info(self.prev_time, "a:", round(self.prev_ask, 5), "b:", round(self.prev_bid, 5), "m:", round(self.prev_avg, 5), "==> {:.5f} ==>".format(self.change), self.time, "a:", round(self.ask, 5), "b:", round(self.bid, 5), "m:", round(self.avg, 5))
 
     def set_prev(self):
         self.prev_ask = self.ask
