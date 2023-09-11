@@ -13,11 +13,11 @@ class PocketOption:
     def __init__(self):
         self.started_loop = False
         self.trade_ws = None
-        self.pair_mt5 = "BTCUSD"
-        self.pair_pocket = "AUDCAD_otc"
-        self.expiration_time = 5
-        self.sleep_after_trade = 1
-        self.point_min = 1
+        self.pair_mt5 = "EURUSD"
+        self.pair_pocket = "EURUSD"
+        self.expiration_time = 60
+        self.sleep_after_trade = 20
+        self.point_min = 6
 
         #INIT mt5
         if not mt5.initialize():
