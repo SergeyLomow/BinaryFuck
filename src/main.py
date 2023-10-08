@@ -1,100 +1,40 @@
+import time
+import websockets
+import json
 import asyncio
-import logging
-from mitmproxy import ctx
-from mitmproxy import http
-import MetaTrader5 as mt5
 from statistics import mean
-import datetime
-import models
-# from mitmproxy import command
+import pyautogui
 
+# while 1:
+#     # Get the current mouse cursor position
+#     x, y = pyautogui.position()
+#
+#     # Print the x and y coordinates
+#     print(f"Mouse position - X: {x}, Y: {y}")
 
-class PocketOption:
-    def __init__(self):
-        self.started_loop = False
-        self.trade_ws = None
-        self.pair_mt5 = "EURUSD"
-        self.pair_pocket = self.pair_mt5
-        self.expiration_time = 60
-        self.sleep_after_trade = 20
-        self.point_min = 6
-        self.amount = 10
+async def main():
+    ws_binance = await websockets.connect("wss://stream.binance.com:443/stream?streams=btcusdt@depth20@1000ms")
 
-        #INIT mt5
-        if not mt5.initialize():
-            logging.info("initialize() failed, error code =", mt5.last_error())
-            quit()
+    prev_avg_price = -1
+    while True:
+        data_str = await ws_binance.recv()
+        data = json.loads(data_str)
 
-        account = 27138787
-        authorized = mt5.login(account, password="228228Aa", server="RoboForex-Pro")
-        if not authorized:
-            logging.info(("failed to connect at account #{}, error code: {}".format(account, mt5.last_error())))
+        avg_price = mean([float(data['data']['asks'][0][0]), float(data['data']['bids'][0][0])])
+        if prev_avg_price == -1:
+            prev_avg_price = avg_price
+            continue
+        change = (avg_price/prev_avg_price-1) * 100
+        if prev_avg_price!=-1 and  abs(change) > 0.005:
+            print(change, prev_avg_price, avg_price)
+            if change<0:
+                pyautogui.click(1730, 1011)
 
+            else:
+                pyautogui.click(806, 639)
 
-    def load(self, loader):
-        logging.info("PocketOption has been loaded")
+            #time.sleep(60)
 
-    def websocket_message(self, flow: http.HTTPFlow):
-        if not self.started_loop:
-            self.started_loop = True
-            loop = asyncio.get_event_loop()
-            loop.create_task(self.main())
+        prev_avg_price = avg_price
 
-        try:
-            last_message = flow.websocket.messages[-1]
-            if '451-["updateAssets",{"_placeholder":true,"num":0}]' in last_message.text: #Find WS stream
-                self.trade_ws = flow
-                logging.info("trade_ws updated")
-        except AttributeError:
-            pass
-
-    async def main(self):
-        logging.info("Started loop!")
-
-        point_limit = await self.get_precision() * self.point_min
-
-        spread = models.spread(None, None, None, None, None, None, None, None, None)
-
-        while 1:
-            await asyncio.sleep(0.001)
-
-            if self.trade_ws is not None:
-                infa = mt5.symbol_info_tick(self.pair_mt5)
-
-                spread.ask = infa.ask
-                spread.bid = infa.bid
-
-                dt_object = datetime.datetime.fromtimestamp(infa.time_msc / 1000)
-                formatted_date = dt_object.strftime('%Y-%m-%d %H:%M:%S.%f')[:-4]
-                spread.time = formatted_date
-
-                spread.avg = mean([spread.ask, spread.bid])
-                if spread.prev_avg != None:
-                    spread.change = spread.avg - spread.prev_avg
-                    if abs(spread.change) >= point_limit:
-                        spread.print_info()
-                        if spread.change < 0:
-                            mode = "put"
-                        else:
-                            mode = "call"
-                        msg = '42["openOrder",{"asset":"' + self.pair_pocket + '","amount":'+str(self.amount)+',"action":"'+mode+'","isDemo":1,"requestId":15209040,"optionType":100,"time":' + str(
-                            self.expiration_time) + '}]'
-                        ctx.master.commands.call(
-                            "inject.websocket", self.trade_ws, False, msg.encode()
-                        )
-                        logging.info("Send "+mode)
-                        await asyncio.sleep(self.sleep_after_trade)
-                spread.set_prev()
-
-    async def get_precision(self):
-        digits = mt5.symbol_info(self.pair_mt5).digits
-        res = 10**(-digits)
-        return res
-
-
-addons = [PocketOption()]
-
-if __name__ == "__main__":
-    pocket_option = PocketOption()
-    asyncio.run(pocket_option.get_precision())
-
+asyncio.run(main())
